@@ -1,0 +1,285 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Resources": {
+    "Client": {
+      "Type": "AWS::DynamoDB::Table",
+      "Properties": {
+        "KeySchema": [
+          {
+            "AttributeName": "parentId",
+            "KeyType": "HASH"
+          },
+          {
+            "AttributeName": "childId",
+            "KeyType": "RANGE"
+          }
+        ],
+        "AttributeDefinitions": [
+          {
+            "AttributeName": "parentId",
+            "AttributeType": "S"
+          },
+          {
+            "AttributeName": "childId",
+            "AttributeType": "S"
+          }
+        ],
+        "GlobalSecondaryIndexes": [
+          {
+            "IndexName": "child-index",
+            "KeySchema": [
+              {
+                "AttributeName": "childId",
+                "KeyType": "HASH"
+              }
+            ],
+            "Projection": {
+              "ProjectionType": "ALL"
+            },
+            "ProvisionedThroughput": {
+              "ReadCapacityUnits": 1,
+              "WriteCapacityUnits": 1
+            }
+          }
+        ],
+        "BillingMode": "PROVISIONED",
+        "TableName": "Client",
+        "ProvisionedThroughput": {
+          "ReadCapacityUnits": 1,
+          "WriteCapacityUnits": 1
+        }
+      }
+    },
+    "TableClientReadCapacityScalableTarget": {
+      "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
+      "DependsOn": "Client",
+      "Properties": {
+        "ServiceNamespace": "dynamodb",
+        "ResourceId": "table/Client",
+        "ScalableDimension": "dynamodb:table:ReadCapacityUnits",
+        "MinCapacity": 1,
+        "MaxCapacity": 10,
+        "RoleARN": {
+          "Fn::Sub": "arn:aws:iam::${AWS::AccountId}:role/aws-service-role/dynamodb.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_DynamoDBTable"
+        }
+      }
+    },
+    "TableClientReadCapacityScalingPolicy": {
+      "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
+      "DependsOn": "TableClientReadCapacityScalableTarget",
+      "Properties": {
+        "ServiceNamespace": "dynamodb",
+        "ResourceId": "table/Client",
+        "ScalableDimension": "dynamodb:table:ReadCapacityUnits",
+        "PolicyName": "Client-read-capacity-scaling-policy",
+        "PolicyType": "TargetTrackingScaling",
+        "TargetTrackingScalingPolicyConfiguration": {
+          "PredefinedMetricSpecification": {
+            "PredefinedMetricType": "DynamoDBReadCapacityUtilization"
+          },
+          "ScaleOutCooldown": 60,
+          "ScaleInCooldown": 60,
+          "TargetValue": 70
+        }
+      }
+    },
+    "TableClientWriteCapacityScalableTarget": {
+      "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
+      "DependsOn": "Client",
+      "Properties": {
+        "ServiceNamespace": "dynamodb",
+        "ResourceId": "table/Client",
+        "ScalableDimension": "dynamodb:table:WriteCapacityUnits",
+        "MinCapacity": 1,
+        "MaxCapacity": 10,
+        "RoleARN": {
+          "Fn::Sub": "arn:aws:iam::${AWS::AccountId}:role/aws-service-role/dynamodb.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_DynamoDBTable"
+        }
+      }
+    },
+    "TableClientWriteCapacityScalingPolicy": {
+      "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
+      "DependsOn": "TableClientWriteCapacityScalableTarget",
+      "Properties": {
+        "ServiceNamespace": "dynamodb",
+        "ResourceId": "table/Client",
+        "ScalableDimension": "dynamodb:table:WriteCapacityUnits",
+        "PolicyName": "Client-write-capacity-scaling-policy",
+        "PolicyType": "TargetTrackingScaling",
+        "TargetTrackingScalingPolicyConfiguration": {
+          "PredefinedMetricSpecification": {
+            "PredefinedMetricType": "DynamoDBWriteCapacityUtilization"
+          },
+          "ScaleOutCooldown": 60,
+          "ScaleInCooldown": 60,
+          "TargetValue": 70
+        }
+      }
+    },
+    "TableClientIndexchild-indexReadCapacityScalableTarget": {
+      "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
+      "DependsOn": "Client",
+      "Properties": {
+        "ServiceNamespace": "dynamodb",
+        "ResourceId": "table/Client/index/child-index",
+        "ScalableDimension": "dynamodb:index:ReadCapacityUnits",
+        "MinCapacity": 1,
+        "MaxCapacity": 10,
+        "RoleARN": {
+          "Fn::Sub": "arn:aws:iam::${AWS::AccountId}:role/aws-service-role/dynamodb.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_DynamoDBTable"
+        }
+      }
+    },
+    "TableClientIndexchild-indexReadCapacityScalingPolicy": {
+      "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
+      "DependsOn": "TableClientIndexchild-indexReadCapacityScalableTarget",
+      "Properties": {
+        "ServiceNamespace": "dynamodb",
+        "ResourceId": "table/Client/index/child-index",
+        "ScalableDimension": "dynamodb:index:ReadCapacityUnits",
+        "PolicyName": "Client-index-child-index-read-capacity-scaling-policy",
+        "PolicyType": "TargetTrackingScaling",
+        "TargetTrackingScalingPolicyConfiguration": {
+          "PredefinedMetricSpecification": {
+            "PredefinedMetricType": "DynamoDBReadCapacityUtilization"
+          },
+          "ScaleOutCooldown": 60,
+          "ScaleInCooldown": 60,
+          "TargetValue": 70
+        }
+      }
+    },
+    "TableClientIndexchild-indexWriteCapacityScalableTarget": {
+      "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
+      "DependsOn": "Client",
+      "Properties": {
+        "ServiceNamespace": "dynamodb",
+        "ResourceId": "table/Client/index/child-index",
+        "ScalableDimension": "dynamodb:index:WriteCapacityUnits",
+        "MinCapacity": 1,
+        "MaxCapacity": 10,
+        "RoleARN": {
+          "Fn::Sub": "arn:aws:iam::${AWS::AccountId}:role/aws-service-role/dynamodb.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_DynamoDBTable"
+        }
+      }
+    },
+    "TableClientIndexchild-indexWriteCapacityScalingPolicy": {
+      "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
+      "DependsOn": "TableClientIndexchild-indexWriteCapacityScalableTarget",
+      "Properties": {
+        "ServiceNamespace": "dynamodb",
+        "ResourceId": "table/Client/index/child-index",
+        "ScalableDimension": "dynamodb:index:WriteCapacityUnits",
+        "PolicyName": "Client-index-child-index-write-capacity-scaling-policy",
+        "PolicyType": "TargetTrackingScaling",
+        "TargetTrackingScalingPolicyConfiguration": {
+          "PredefinedMetricSpecification": {
+            "PredefinedMetricType": "DynamoDBWriteCapacityUtilization"
+          },
+          "ScaleOutCooldown": 60,
+          "ScaleInCooldown": 60,
+          "TargetValue": 70
+        }
+      }
+    },
+    "Document": {
+      "Type": "AWS::DynamoDB::Table",
+      "Properties": {
+        "KeySchema": [
+          {
+            "AttributeName": "id",
+            "KeyType": "HASH"
+          },
+          {
+            "AttributeName": "type",
+            "KeyType": "RANGE"
+          }
+        ],
+        "AttributeDefinitions": [
+          {
+            "AttributeName": "id",
+            "AttributeType": "S"
+          },
+          {
+            "AttributeName": "type",
+            "AttributeType": "S"
+          }
+        ],
+        "GlobalSecondaryIndexes": [],
+        "BillingMode": "PROVISIONED",
+        "TableName": "Document",
+        "ProvisionedThroughput": {
+          "ReadCapacityUnits": 1,
+          "WriteCapacityUnits": 1
+        }
+      },
+      "DependsOn": "Client"
+    },
+    "TableDocumentReadCapacityScalableTarget": {
+      "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
+      "DependsOn": "Document",
+      "Properties": {
+        "ServiceNamespace": "dynamodb",
+        "ResourceId": "table/Document",
+        "ScalableDimension": "dynamodb:table:ReadCapacityUnits",
+        "MinCapacity": 1,
+        "MaxCapacity": 10,
+        "RoleARN": {
+          "Fn::Sub": "arn:aws:iam::${AWS::AccountId}:role/aws-service-role/dynamodb.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_DynamoDBTable"
+        }
+      }
+    },
+    "TableDocumentReadCapacityScalingPolicy": {
+      "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
+      "DependsOn": "TableDocumentReadCapacityScalableTarget",
+      "Properties": {
+        "ServiceNamespace": "dynamodb",
+        "ResourceId": "table/Document",
+        "ScalableDimension": "dynamodb:table:ReadCapacityUnits",
+        "PolicyName": "Document-read-capacity-scaling-policy",
+        "PolicyType": "TargetTrackingScaling",
+        "TargetTrackingScalingPolicyConfiguration": {
+          "PredefinedMetricSpecification": {
+            "PredefinedMetricType": "DynamoDBReadCapacityUtilization"
+          },
+          "ScaleOutCooldown": 60,
+          "ScaleInCooldown": 60,
+          "TargetValue": 70
+        }
+      }
+    },
+    "TableDocumentWriteCapacityScalableTarget": {
+      "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
+      "DependsOn": "Document",
+      "Properties": {
+        "ServiceNamespace": "dynamodb",
+        "ResourceId": "table/Document",
+        "ScalableDimension": "dynamodb:table:WriteCapacityUnits",
+        "MinCapacity": 1,
+        "MaxCapacity": 10,
+        "RoleARN": {
+          "Fn::Sub": "arn:aws:iam::${AWS::AccountId}:role/aws-service-role/dynamodb.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_DynamoDBTable"
+        }
+      }
+    },
+    "TableDocumentWriteCapacityScalingPolicy": {
+      "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
+      "DependsOn": "TableDocumentWriteCapacityScalableTarget",
+      "Properties": {
+        "ServiceNamespace": "dynamodb",
+        "ResourceId": "table/Document",
+        "ScalableDimension": "dynamodb:table:WriteCapacityUnits",
+        "PolicyName": "Document-write-capacity-scaling-policy",
+        "PolicyType": "TargetTrackingScaling",
+        "TargetTrackingScalingPolicyConfiguration": {
+          "PredefinedMetricSpecification": {
+            "PredefinedMetricType": "DynamoDBWriteCapacityUtilization"
+          },
+          "ScaleOutCooldown": 60,
+          "ScaleInCooldown": 60,
+          "TargetValue": 70
+        }
+      }
+    }
+  }
+}

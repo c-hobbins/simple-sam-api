@@ -1,0 +1,74 @@
+{
+    "AttributeDefinitions": [
+        {
+            "AttributeName": "",
+            "AttributeType": "S"
+        }
+    ],
+    "TableName": "",
+    "KeySchema": [
+        {
+            "AttributeName": "",
+            "KeyType": "HASH"
+        }
+    ],
+    "LocalSecondaryIndexes": [
+        {
+            "IndexName": "",
+            "KeySchema": [
+                {
+                    "AttributeName": "",
+                    "KeyType": "RANGE"
+                }
+            ],
+            "Projection": {
+                "ProjectionType": "ALL",
+                "NonKeyAttributes": [
+                    ""
+                ]
+            }
+        }
+    ],
+    "GlobalSecondaryIndexes": [
+        {
+            "IndexName": "",
+            "KeySchema": [
+                {
+                    "AttributeName": "",
+                    "KeyType": "HASH"
+                }
+            ],
+            "Projection": {
+                "ProjectionType": "KEYS_ONLY",
+                "NonKeyAttributes": [
+                    ""
+                ]
+            },
+            "ProvisionedThroughput": {
+                "ReadCapacityUnits": 0,
+                "WriteCapacityUnits": 0
+            }
+        }
+    ],
+    "BillingMode": "PAY_PER_REQUEST",
+    "ProvisionedThroughput": {
+        "ReadCapacityUnits": 0,
+        "WriteCapacityUnits": 0
+    },
+    "StreamSpecification": {
+        "StreamEnabled": true,
+        "StreamViewType": "KEYS_ONLY"
+    },
+    "SSESpecification": {
+        "Enabled": true,
+        "SSEType": "AES256",
+        "KMSMasterKeyId": ""
+    },
+    "Tags": [
+        {
+            "Key": "",
+            "Value": ""
+        }
+    ],
+    "TableClass": "STANDARD_INFREQUENT_ACCESS"
+}

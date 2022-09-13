@@ -1,0 +1,241 @@
+# This is the SAM template that represents the architecture of your serverless application
+# https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-template-basics.html
+
+# The AWSTemplateFormatVersion identifies the capabilities of the template
+# https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/format-version-structure.html
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >-
+  sam-api
+
+# Transform section specifies one or more macros that AWS CloudFormation uses to process your template
+# https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/transform-section-structure.html
+Transform: AWS::Serverless-2016-10-31
+
+Parameters:
+  Env:
+    Type: String
+    AllowedValues:
+      - LOCAL
+      - AWS
+    Default: LOCAL
+    Description: Dev will run with local resources and Prod will run with cloud provisioned resources
+
+# Resources declares the AWS resources that you want to include in the stack
+# https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/resources-section-structure.html
+Resources:
+  # Each Lambda function is defined by properties:
+  # https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+
+  processDbTransactions:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: src/handlers/streamproc.processDbStream
+      Runtime: nodejs14.x
+      Architectures:
+        - x86_64
+      MemorySize: 128
+      Timeout: 100
+      Description: A simple lambda to print out the dynamodb stream
+      Policies:
+        - DynamoDBStreamReadPolicy:
+            TableName: !Ref DeviceDdbTable
+            StreamName: !GetAtt DeviceDdbTable.StreamArn
+      Environment:
+        Variables:
+          # Make table name accessible as environment variable from function code during execution
+          DEVICE_TABLE: !Ref DeviceDdbTable
+          AWSENV: !Ref Env
+      Events:
+        Stream:
+          Type: DynamoDB
+          Properties:
+            Stream: !GetAtt DeviceDdbTable.StreamArn
+            BatchSize: 100
+            StartingPosition: TRIM_HORIZON
+  asyncTest:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: src/handlers/test.asyncTest
+      Runtime: nodejs14.x
+      Architectures:
+        - x86_64
+      MemorySize: 128
+      Timeout: 100
+      Description: Test async function
+  syncTest:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: src/handlers/test.syncTest
+      Runtime: nodejs14.x
+      Architectures:
+        - x86_64
+      MemorySize: 128
+      Timeout: 100
+      Description: Test sync function
+  # This is a Lambda function config associated with the source code: get-all-items.js
+  getAllReadings:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: src/handlers/get-handler.getAllItems
+      Runtime: nodejs14.x
+      Architectures:
+        - x86_64
+      MemorySize: 128
+      Timeout: 100
+      Description: A simple example includes a HTTP get method to get all items from a DynamoDB table.
+      AutoPublishAlias: live
+      DeploymentPreference:
+        Type: AllAtOnce
+      Policies:
+        # Give Create/Read/Update/Delete Permissions to the SampleTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref DeviceDdbTable
+      Environment:
+        Variables:
+          # Make table name accessible as environment variable from function code during execution
+          DEVICE_TABLE: !Ref DeviceDdbTable
+          AWSENV: !Ref Env
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            Path: /readings
+            Method: GET
+  # Each Lambda function is defined by properties:
+  # https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+
+  # This is a Lambda function config associated with the source code: get-by-id.js
+  getDeviceReadingById:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: src/handlers/get-handler.getItemById
+      Runtime: nodejs14.x
+      Architectures:
+        - x86_64
+      MemorySize: 128
+      Timeout: 100
+      Description: A simple example includes a HTTP get method to get one item by id from a DynamoDB table.
+      Policies:
+        # Give Create/Read/Update/Delete Permissions to the SampleTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref DeviceDdbTable
+      Environment:
+        Variables:
+          # Make table name accessible as environment variable from function code during execution
+          DEVICE_TABLE: !Ref DeviceDdbTable
+          AWSENV: !Ref Env
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            Path: /readings/{id}
+            Method: GET
+  # Each Lambda function is defined by properties:
+  # https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+
+  deleteDeviceReadingById:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: src/handlers/delete-handler.deleteItem
+      Runtime: nodejs14.x
+      Architectures:
+        - x86_64
+      MemorySize: 128
+      Timeout: 100
+      Description: A simple example includes a HTTP get method to get one item by id from a DynamoDB table.
+      Policies:
+        # Give Create/Read/Update/Delete Permissions to the SampleTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref DeviceDdbTable
+      Environment:
+        Variables:
+          # Make table name accessible as environment variable from function code during execution
+          DEVICE_TABLE: !Ref DeviceDdbTable
+          AWSENV: !Ref Env
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            Path: /readings/{id}
+            Method: DELETE
+  # This is a Lambda function config associated with the source code: put-item.js
+  insertDeviceReading:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: src/handlers/put-handler.insertDeviceReading
+      Runtime: nodejs14.x
+      Architectures:
+        - x86_64
+      MemorySize: 128
+      Timeout: 100
+      Description: A simple example includes a HTTP post method to add one item to a DynamoDB table.
+      Policies:
+        # Give Create/Read/Update/Delete Permissions to the DeviceDdbTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref DeviceDdbTable
+      Tags:
+        cdxp:owner: chobbins
+        cdxp:env: sbx
+        cdxp:project: sam deployment poc
+      Environment:
+        Variables:
+          # Make table name accessible as environment variable from function code during execution
+          DEVICE_TABLE: !Ref DeviceDdbTable
+          AWSENV: !Ref Env
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            Path: /readings
+            Method: POST
+  # Simple syntax to create a DynamoDB table with a single attribute primary key, more in
+  # https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlesssimpletable
+
+  # DynamoDB table to store item: {id: &lt;ID&gt;, name: &lt;NAME&gt;}
+  DeviceDdbTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: Devices
+      StreamSpecification:
+        StreamViewType: NEW_AND_OLD_IMAGES
+      AttributeDefinitions:
+        - AttributeName: ID
+          AttributeType: S
+        - AttributeName: SK
+          AttributeType: S
+        - AttributeName: LOC_REG
+          AttributeType: S
+        - AttributeName: LOC_SK
+          AttributeType: S
+      KeySchema:
+        - AttributeName: ID
+          KeyType: HASH
+        - AttributeName: SK
+          KeyType: RANGE
+      GlobalSecondaryIndexes:
+        - IndexName: location-index
+          KeySchema:
+            - AttributeName: LOC_REG
+              KeyType: HASH
+            - AttributeName: LOC_SK
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: 3
+            WriteCapacityUnits: 2
+      ProvisionedThroughput:
+        ReadCapacityUnits: 2
+        WriteCapacityUnits: 2
+      BillingMode: PROVISIONED
+      Tags:
+        - Key: cdxp:owner
+          Value: chobbins
+        - Key: cdxp:env
+          Value: sbx
+        - Key: cdxp:project
+          Value: sam deployment poc
+Outputs:
+  WebEndpoint:
+    Description: "API Gateway endpoint URL for Prod stage"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"

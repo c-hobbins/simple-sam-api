@@ -1,0 +1,43 @@
+{
+    "AttributeDefinitions": [
+        {
+            "AttributeName": "id",
+            "AttributeType": "S"
+        },
+        {
+            "AttributeName": "name",
+            "AttributeType": "S"
+        }
+    ],
+    "TableName": "mytable",
+    "KeySchema": [
+        {
+            "AttributeName": "id",
+            "KeyType": "HASH"
+        },
+        {
+            "AttributeName": "name",
+            "KeyType": "RANGE"
+        }
+    ],
+    "BillingMode": "PAY_PER_REQUEST",
+    "ProvisionedThroughput": {
+        "ReadCapacityUnits": 2,
+        "WriteCapacityUnits": 2
+    },
+    "StreamSpecification": {
+        "StreamEnabled": true,
+        "StreamViewType": "NEW_AND_OLD_IMAGES"
+    },
+    "Tags": [
+        {
+            "Key": "env",
+            "Value": "sandbox"
+        },
+        {
+            "Key": "owner",
+            "Value": "chobbins"
+        }
+    ],
+    "TableClass": "STANDARD_INFREQUENT_ACCESS"
+}

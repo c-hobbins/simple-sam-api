@@ -1,0 +1,4 @@
+{
+    "httpMethod": "POST",
+    "body": "{ID:'88',SK:'reading',LOC_REG:'NCR',LOC_BLDG:'LISGAR',LOC_FLR:'3',LOC_SCTR:'6',TEMP:'20.5',HUM:'35.8',GAS:'168',DECB:'425',CO2:'402',DUST:'225.3845',PRESSURE:'101853',TVOC:'0'}"
+}

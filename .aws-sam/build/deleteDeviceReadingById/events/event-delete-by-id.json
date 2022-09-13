@@ -1,0 +1,7 @@
+{
+    "httpMethod": "DELETE",
+    "path": "/readings",
+    "pathParameters": {
+        "id": "555"
+    }
+}

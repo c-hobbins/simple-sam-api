@@ -1,0 +1,4 @@
+{
+    "httpMethod": "POST",
+    "body": "{\"ID\":\"556\",\"SK\":\"reading\",\"LOC_REG\":\"NCR\",\"LOC_BLDG\":\"ELGIN\",\"LOC_FLR\":3,\"LOC_SCTR\":1,\"TEMP\":22.5,\"HUM\":36.1,\"GAS\":177,\"DECB\":324,\"CO2\":400,\"DUST\":219.5654,\"PRESSURE\":100899,\"TVOC\":0}"
+}

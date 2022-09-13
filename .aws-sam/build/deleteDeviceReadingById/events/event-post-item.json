@@ -1,0 +1,5 @@
+{
+    "httpMethod": "POST",
+    "path": "/readings",
+    "body": "{\"id\":\"id87\",\"name\":\"name87\"}"
+}

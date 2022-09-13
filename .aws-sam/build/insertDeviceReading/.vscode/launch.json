@@ -1,0 +1,29 @@
+{
+    "configurations": [
+
+        {
+            "type": "aws-sam",
+            "request": "direct-invoke",
+            "name": "sam-api:src/handlers/get-all-items.getAllItemsHandler (nodejs14.x)",
+            "invokeTarget": {
+                "target": "code",
+                "projectRoot": "${workspaceFolder}/",
+                "lambdaHandler": "src/handlers/get-all-items.getAllItemsHandler"
+            },
+            "lambda": {
+                "runtime": "nodejs14.x",
+                "payload": { "json": {
+                    "httpMethod": "GET"
+                    }
+                },
+                "environmentVariables": {
+                    "SAMPLE_TABLE": "mytable",
+                    "AWSENV": "AWS_SAM_LOCAL"
+                }
+            },
+            "aws":{
+                "credentials": "profile:chad-eventbroker-dev"
+            }
+        }
+    ]
+}
